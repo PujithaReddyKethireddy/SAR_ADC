@@ -1,16 +1,12 @@
-# 🔥 10-bit SAR ADC Design (Top-Down Approach)
+# 🔥 10-bit SAR ADC Design (Top-Down System Design)
 
-This project presents a **system-level design of a 10-bit SAR ADC** using a structured top-down methodology.
+This project implements a **complete system-level design of a 10-bit SAR ADC** using a structured top-down methodology.
 
-The design starts from specifications and progresses through:
-- Error budgeting
-- Monte Carlo analysis
-- Iterative convergence
-- Noise, timing, and power closure
+The flow spans from **specification → modeling → statistical validation → physical closure**.
 
 ---
 
-# 📌 Specifications
+# 📌 Specifications (S0)
 
 | Parameter | Value |
 |----------|------|
@@ -22,42 +18,136 @@ The design starts from specifications and progresses through:
 
 ---
 
-# 🧠 Design Methodology
+# 🧠 Design Flow Overview
 
-The design follows a **top-down approach**:
-
-1. **S0 — Specifications**
-2. **S4 — Monte Carlo Yield Simulation**
-3. **S5 — Iterative Design Optimization**
-4. **S6 — Physical Parameter Extraction**
-5. **SC0 — Noise Closure**
-6. **SC1 — Timing Closure**
-7. **SC2 — Power Closure**
-
-All decisions are driven by **quantitative constraints**, not manual tuning.
+The design is divided into structured stages:
 
 ---
 
-# 📊 Key Results
+## 🔹 S0 — System Specifications
+- Defined resolution, sampling rate, ENOB, yield, and power targets
+- Derived LSB and allowable noise limits
+
+---
+
+## 🔹 S1 — Ideal ADC Modeling
+- Implemented ideal SAR ADC behavior
+- Verified ENOB ≈ 10 bits using FFT
+
+---
+
+## 🔹 S2 — Non-Idealities Introduction
+- Added:
+  - Thermal noise (kT/C)
+  - Comparator noise
+  - Offset
+- Observed ENOB degradation
+
+---
+
+## 🔹 S3 — Error Breakdown
+- Quantified impact of:
+  - Noise
+  - Mismatch
+  - Offset
+- Identified dominant contributors
+
+---
+
+## 🔹 S4 — Monte Carlo Simulation
+- Performed statistical simulation (300+ runs)
+- Generated:
+  - ENOB histogram
+  - CDF (yield estimation)
+- Extracted:
+  - Mean ENOB
+  - Standard deviation
+  - Yield %
+
+---
+
+## 🔹 S5 — Iterative Design Optimization
+- Designed an automated loop to:
+  - Adjust C_unit (noise control)
+  - Adjust mismatch (yield control)
+- Achieved convergence:
+  - ENOB ≥ target
+  - Yield ≥ 95%
+
+---
+
+## 🔹 S6 — Physical Parameter Derivation
+- Derived:
+  - Unit capacitance from kT/C
+  - Total CDAC capacitance
+  - Switch resistance constraints
+- Linked system specs to circuit parameters
+
+---
+
+# 🔒 Closure Stages
+
+---
+
+## 🔹 SC0 — Noise Closure
+- Total noise verified:
+  - **0.253 mV < 0.5 LSB (0.488 mV)** ✅
+
+---
+
+## 🔹 SC1 — Timing Closure
+- Derived using:
+  - RC settling
+  - Comparator regeneration
+  - SAR bit cycling
+
+\[
+T_{total} = N × (T_{settle} + T_{comp} + T_{logic})
+\]
+
+- Result:
+  - **645 ns < 1 µs** ✅
+
+---
+
+## 🔹 SC2 — Power Closure
+- Power estimated from:
+  - CDAC switching
+  - Comparator
+  - Logic
+  - Reference
+
+- Result:
+  - **14.08 µW < 20 µW** ✅
+
+---
+
+# 📊 Final Results
 
 | Metric | Value | Status |
 |-------|------|--------|
 | ENOB | 9.553 bits | ✅ |
 | Yield | 97% | ✅ |
 | Noise | 0.253 mV | ✅ |
-| Power | 14.08 µW | ✅ |
 | Timing | 645 ns | ✅ |
+| Power | 14.08 µW | ✅ |
 | 3σ ENOB | 9.472 bits | ⚠️ |
 
 ---
 
-# ⚠️ Design Insight
+# ⚠️ Design Limitation
 
-Although the design meets yield and performance targets, **3σ robustness is slightly below specification**, indicating potential failures under worst-case mismatch conditions.
+The design meets all primary constraints but:
 
-👉 This can be improved using:
-- Digital calibration
-- Better capacitor matching (layout)
+- **3σ ENOB < 9.5 bits**
+- Indicates potential failures under worst-case mismatch
+
+---
+
+## 🔧 Improvement Options
+
+- Digital calibration (preferred)
+- Improved capacitor matching (layout)
 - Slight increase in unit capacitance
 
 ---
@@ -65,27 +155,26 @@ Although the design meets yield and performance targets, **3σ robustness is sli
 # 📈 Analysis Included
 
 - Monte Carlo ENOB distribution
-- FFT analysis and evolution
+- FFT and spectral analysis
+- FFT evolution across iterations
 - ENOB vs iteration
 - Yield vs iteration
 - Power vs capacitance
-- DNL / INL computation
+- DNL / INL analysis
 
 ---
 
 # ⚡ Key Trade-offs
 
-| Improvement | Side Effect |
-|------------|------------|
-| Increase C_unit | ↑ Power, ↑ settling time |
-| Reduce mismatch | ↑ layout complexity |
-| Calibration | ↑ digital complexity |
+| Parameter Change | Impact |
+|----------------|--------|
+| ↑ C_unit | ↓ Noise, ↑ Power, ↑ Settling time |
+| ↓ Mismatch | ↑ Yield |
+| Calibration | Improves 3σ without power penalty |
 
 ---
 
-# 🧠 Interview Takeaway
-
-> Designed a 10-bit SAR ADC achieving 9.55 ENOB with 97% yield using a top-down methodology. Performed statistical validation and closed noise, timing, and power, while identifying mismatch as the dominant limitation affecting 3σ robustness.
+> Designed a 10-bit SAR ADC using a top-down methodology, achieving 9.55 ENOB with 97% yield while meeting power and timing constraints. Identified mismatch as the dominant limitation affecting 3σ robustness.
 
 ---
 
@@ -97,5 +186,3 @@ Although the design meets yield and performance targets, **3σ robustness is sli
 - Calibration implementation
 
 ---
-
-# 📂 Folder Structure
