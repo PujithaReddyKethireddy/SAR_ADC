@@ -1,0 +1,44 @@
+* ===== StrongARM Comparator (FINAL FINAL - TUNED) =====
+ 
+VDD vdd 0 1.8
+ 
+* Clock
+Vclk clk 0 PULSE(0 1.8 0 10p 10p 5n 10n)
+Vclkb clkb 0 PULSE(1.8 0 0 10p 10p 5n 10n)
+ 
+* Inputs (small diff)
+Vin vin 0 0.9
+Vref vref 0 0.89
+ 
+* 🔥 Tail NMOS (INCREASED)
+M7 tail clk 0 0 nmos W=40u L=0.18u
+ 
+* Input pair
+M1 P vin tail 0 nmos W=1.5u L=0.18u
+M2 Q vref tail 0 nmos W=1.5u L=0.18u
+ 
+* NMOS regeneration
+M3 X P tail 0 nmos W=15u L=0.18u
+M4 Y Q tail 0 nmos W=15u L=0.18u
+ 
+* 🔥 PMOS latch (SLIGHTLY STRONGER)
+M5 X Y vdd vdd pmos W=16u L=0.18u
+M6 Y X vdd vdd pmos W=16u L=0.18u
+ 
+* Reset PMOS
+M8 P clkb vdd vdd pmos W=1u L=0.18u
+M9 X clkb vdd vdd pmos W=1u L=0.18u
+M10 Q clkb vdd vdd pmos W=1u L=0.18u
+M11 Y clkb vdd vdd pmos W=1u L=0.18u
+ 
+* 🔥 Load caps (REDUCED)
+C1 X 0 30f
+C2 Y 0 30f
+ 
+* Models
+.model nmos NMOS (LEVEL=1 VTO=0.5 KP=200u LAMBDA=0.02)
+.model pmos PMOS (LEVEL=1 VTO=-0.5 KP=100u LAMBDA=0.02)
+ 
+.tran 0 100n
+ 
+.end
