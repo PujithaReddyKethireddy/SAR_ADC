@@ -1,0 +1,76 @@
+* ===== STEP 4: REAL SAR FRONT-END (S/H + CAP DAC + COMPARATOR) =====
+
+VDD vdd 0 1.8
+
+* =========================
+* INPUT SIGNAL
+* =========================
+Vin vin 0 SIN(0.9 0.5 20Meg)
+
+* =========================
+* CLOCK (Sample & Hold)
+* =========================
+Vclk clk 0 PULSE(0 1.8 0 1n 1n 20n 40n)
+
+* =========================
+* SAMPLE & HOLD
+* =========================
+Ssample vin vin_sample clk 0 SW
+Chold vin_sample 0 100f
+
+.model SW SW(Ron=100 Roff=1Meg Vt=0.9 Vh=0.1)
+
+* =========================
+* SAR BIT TRIALS (SEQUENTIAL)
+* =========================
+
+Vd2 d2 0 PULSE(0 1.8 0n 1n 1n 20n 60n)
+Vd1 d1 0 PULSE(0 1.8 20n 1n 1n 20n 60n)
+Vd0 d0 0 PULSE(0 1.8 40n 1n 1n 20n 60n)
+
+* =========================
+* CAPACITIVE DAC (REAL STYLE)
+* =========================
+
+C2 vdac d2 4p
+C1 vdac d1 2p
+C0 vdac d0 1p
+Cref vdac 0 1p
+
+* =========================
+* COMPARATOR CORE
+* =========================
+
+Itail tail 0 DC 80u
+
+M1 outp vin_sample tail 0 nmos W=30u L=0.18u
+M2 outn vdac tail 0 nmos W=30u L=0.18u
+
+M3 outp outp vdd vdd pmos W=15u L=0.18u
+M4 outn outp vdd vdd pmos W=15u L=0.18u
+
+M5 vout outp vdd vdd pmos W=20u L=0.18u
+M6 vout outn 0 0 nmos W=40u L=0.18u
+
+Mp6 out vout vdd vdd pmos W=20u L=0.18u
+Mn6 out vout 0 0 nmos W=20u L=0.18u
+
+* =========================
+* STABILITY CAPS
+* =========================
+Coutp outp 0 10f
+Coutn outn 0 10f
+Cvout vout 0 10f
+
+* =========================
+* MODELS
+* =========================
+.model nmos NMOS (LEVEL=3 VTO=0.5 KP=200u)
+.model pmos PMOS (LEVEL=3 VTO=-0.5 KP=100u)
+
+* =========================
+* SIMULATION
+* =========================
+.tran 0 120n
+
+.end
