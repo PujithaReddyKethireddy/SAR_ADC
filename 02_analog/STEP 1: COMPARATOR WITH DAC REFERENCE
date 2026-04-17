@@ -1,0 +1,57 @@
+* ===== STEP 1: COMPARATOR WITH DAC REFERENCE =====
+
+VDD vdd 0 1.8
+
+* =========================
+* INPUT SIGNAL (ADC TEST)
+* =========================
+* Ramp input (simulates analog input)
+Vin1 vinp 0 PULSE(0 1.8 0 1n 1n 20n 40n)
+
+* =========================
+* DAC REFERENCE (MID-SCALE)
+* =========================
+Vdac vinn 0 0.9
+
+* =========================
+* COMPARATOR CORE
+* =========================
+
+* Tail current
+Itail tail 0 DC 80u
+
+* Differential pair
+M1 outp vinp tail 0 nmos W=30u L=0.18u
+M2 outn vinn tail 0 nmos W=30u L=0.18u
+
+* Active load
+M3 outp outp vdd vdd pmos W=15u L=0.18u
+M4 outn outp vdd vdd pmos W=15u L=0.18u
+
+* Gain stage (push-pull)
+M5 vout outp vdd vdd pmos W=20u L=0.18u
+M6 vout outn 0 0 nmos W=40u L=0.18u
+
+* Output inverter (digital output)
+Mp6 out vout vdd vdd pmos W=20u L=0.18u
+Mn6 out vout 0 0 nmos W=20u L=0.18u
+
+* =========================
+* STABILITY CAPS
+* =========================
+C1 outp 0 10f
+C2 outn 0 10f
+C3 vout 0 10f
+
+* =========================
+* MODELS
+* =========================
+.model nmos NMOS (LEVEL=3 VTO=0.5 KP=200u)
+.model pmos PMOS (LEVEL=3 VTO=-0.5 KP=100u)
+
+* =========================
+* SIMULATION
+* =========================
+.tran 0 80n
+
+.end
