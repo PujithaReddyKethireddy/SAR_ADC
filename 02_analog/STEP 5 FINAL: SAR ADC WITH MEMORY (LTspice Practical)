@@ -1,0 +1,95 @@
+* ===== STEP 5 FINAL: SAR ADC WITH MEMORY (LTspice Practical) =====
+
+VDD vdd 0 1.8
+
+* =========================
+* INPUT SIGNAL
+* =========================
+Vin vin 0 SIN(0.9 0.4 10Meg)
+
+* =========================
+* CLOCK
+* =========================
+Vclk clk 0 PULSE(0 1.8 0 1n 1n 20n 40n)
+
+* =========================
+* SAMPLE & HOLD
+* =========================
+Ssample vin vin_sample clk 0 SW
+Chold vin_sample 0 100f
+
+.model SW SW(Ron=100 Roff=1Meg Vt=0.9 Vh=0.1)
+
+* =========================
+* BIT TRIAL CLOCKS
+* =========================
+Vph2 ph2 0 PULSE(0 1.8 0n 1n 1n 20n 60n)
+Vph1 ph1 0 PULSE(0 1.8 20n 1n 1n 20n 60n)
+Vph0 ph0 0 PULSE(0 1.8 40n 1n 1n 20n 60n)
+
+* =========================
+* SAR BIT STORAGE (MEMORY)
+* =========================
+
+* MSB
+Sset2 d2 0 ph2 0 SW
+Skeep2 d2 0 vout 0 SW
+Cmem2 d2 0 1p
+Rleak2 d2 0 1Meg
+
+* D1
+Sset1 d1 0 ph1 0 SW
+Skeep1 d1 0 vout 0 SW
+Cmem1 d1 0 1p
+Rleak1 d1 0 1Meg
+
+* D0
+Sset0 d0 0 ph0 0 SW
+Skeep0 d0 0 vout 0 SW
+Cmem0 d0 0 1p
+Rleak0 d0 0 1Meg
+
+* =========================
+* CAPACITIVE DAC
+* =========================
+C2 vdac d2 4p
+C1 vdac d1 2p
+C0 vdac d0 1p
+Cref vdac 0 1p
+
+* =========================
+* COMPARATOR
+* =========================
+Itail tail 0 DC 80u
+
+M1 outp vin_sample tail 0 nmos W=30u L=0.18u
+M2 outn vdac tail 0 nmos W=30u L=0.18u
+
+M3 outp outp vdd vdd pmos W=15u L=0.18u
+M4 outn outp vdd vdd pmos W=15u L=0.18u
+
+M5 vout outp vdd vdd pmos W=20u L=0.18u
+M6 vout outn 0 0 nmos W=40u L=0.18u
+
+Mp6 out vout vdd vdd pmos W=20u L=0.18u
+Mn6 out vout 0 0 nmos W=20u L=0.18u
+
+* =========================
+* CAPS (STABILITY)
+* =========================
+Coutp outp 0 10f
+Coutn outn 0 10f
+Cvout vout 0 10f
+
+* =========================
+* MODELS
+* =========================
+.model nmos NMOS (LEVEL=3 VTO=0.5 KP=200u)
+.model pmos PMOS (LEVEL=3 VTO=-0.5 KP=100u)
+
+* =========================
+* SIMULATION
+* =========================
+.tran 0 150n
+
+.end
