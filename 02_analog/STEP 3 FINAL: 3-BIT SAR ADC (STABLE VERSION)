@@ -1,0 +1,69 @@
+* ===== STEP 3 FINAL: 3-BIT SAR ADC (STABLE VERSION) =====
+
+VDD vdd 0 1.8
+
+* =========================
+* INPUT SIGNAL
+* =========================
+Vin vinp 0 PULSE(0 1.8 0 1n 1n 40n 80n)
+
+* =========================
+* SAR CLOCK (3 phases)
+* =========================
+Vclk clk 0 PULSE(0 1.8 0 1n 1n 10n 30n)
+
+* =========================
+* BIT TRIAL SIGNALS
+* =========================
+
+* MSB trial
+Vd2 d2 0 PULSE(0 1.8 0n 1n 1n 10n 30n)
+
+* D1 trial
+Vd1 d1 0 PULSE(0 1.8 10n 1n 1n 10n 30n)
+
+* D0 trial
+Vd0 d0 0 PULSE(0 1.8 20n 1n 1n 10n 30n)
+
+* =========================
+* DAC (Binary weighted)
+* =========================
+R2 d2 vdac 10k
+R1 d1 vdac 20k
+R0 d0 vdac 40k
+Rload vdac 0 10k
+
+* =========================
+* COMPARATOR CORE
+* =========================
+
+Itail tail 0 DC 80u
+
+M1 outp vinp tail 0 nmos W=30u L=0.18u
+M2 outn vdac tail 0 nmos W=30u L=0.18u
+
+M3 outp outp vdd vdd pmos W=15u L=0.18u
+M4 outn outp vdd vdd pmos W=15u L=0.18u
+
+M5 vout outp vdd vdd pmos W=20u L=0.18u
+M6 vout outn 0 0 nmos W=40u L=0.18u
+
+Mp6 out vout vdd vdd pmos W=20u L=0.18u
+Mn6 out vout 0 0 nmos W=20u L=0.18u
+
+* =========================
+* SMALL CAPS (important)
+* =========================
+C1 outp 0 10f
+C2 outn 0 10f
+C3 vout 0 10f
+
+* =========================
+* MODELS
+* =========================
+.model nmos NMOS (LEVEL=3 VTO=0.5 KP=200u)
+.model pmos PMOS (LEVEL=3 VTO=-0.5 KP=100u)
+
+.tran 0 120n
+
+.end
