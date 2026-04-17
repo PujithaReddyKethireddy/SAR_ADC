@@ -1,0 +1,37 @@
+* ===== PRACTICAL COMPARATOR (FINAL TUNED) =====
+ 
+VDD vdd 0 1.8
+ 
+* Stronger dynamic input
+Vin1 vinp 0 SIN(0.9 10m 50Meg)
+Vin2 vinn 0 DC 0.9
+ 
+* Tail current
+Itail tail 0 DC 80u
+ 
+* Differential pair
+M1 outp vinp tail 0 nmos W=30u L=0.18u
+M2 outn vinn tail 0 nmos W=30u L=0.18u
+ 
+* Active load
+M3 outp outp vdd vdd pmos W=15u L=0.18u
+M4 outn outp vdd vdd pmos W=15u L=0.18u
+ 
+* Strong gain stage (differential load)
+M5 vout outp vdd vdd pmos W=20u L=0.18u
+M6 vout outn 0 0 nmos W=40u L=0.18u
+* Strong inverter
+Mp6 out vout vdd vdd pmos W=20u L=0.18u
+Mn6 out vout 0 0 nmos W=20u L=0.18u
+ 
+* Stability caps
+C1 outp 0 10f
+C2 outn 0 10f
+C3 vout 0 10f
+ 
+.model nmos NMOS (LEVEL=3 VTO=0.5 KP=200u)
+.model pmos PMOS (LEVEL=3 VTO=-0.5 KP=100u)
+ 
+.tran 0 50n
+ 
+.end
