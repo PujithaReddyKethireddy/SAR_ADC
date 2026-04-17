@@ -1,14 +1,16 @@
 module tb_sar_10bit;
 
 reg clk = 0;
-always #5 clk = ~clk;
+always #5 clk = ~clk;   // 100 MHz clock
 
-reg rst, start;
+reg rst;
+reg start;
 reg comp_out;
 
 wire [9:0] sar_out;
 wire done;
 
+// Instantiate DUT
 sar_adc_10bit uut (
     .clk(clk),
     .rst(rst),
@@ -18,19 +20,41 @@ sar_adc_10bit uut (
     .done(done)
 );
 
+// ==========================
+// DUMP FOR WAVEFORM
+// ==========================
 initial begin
-    rst = 1; start = 0; comp_out = 1;
+    $dumpfile("dump.vcd");
+    $dumpvars(0, tb_sar_10bit);
+end
+
+// ==========================
+// TEST SEQUENCE
+// ==========================
+initial begin
+    $display("Starting SAR ADC Testbench");
+
+    rst = 1;
+    start = 0;
+    comp_out = 1;
+
     #10 rst = 0;
 
+    // Start conversion
     #10 start = 1;
     #10 start = 0;
 
-    // simulate comparator decisions
+    // Simulate comparator decisions (10 cycles)
     repeat (10) begin
         #10 comp_out = $random % 2;
     end
 
-    #200 $finish;
+    // Wait for completion
+    #50;
+
+    $display("Final Output = %b", sar_out);
+
+    #20 $finish;
 end
 
 endmodule
